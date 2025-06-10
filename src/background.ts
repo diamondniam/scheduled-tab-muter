@@ -72,6 +72,19 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
   }
 });
 
+function loadWindowStores(windowId: number): Promise<void> {
+  return new Promise((resolve) => {
+    chrome.storage.local.get("windowStores", (result) => {
+      if (!result.windowStores || !result.windowStores[windowId]) resolve();
+      else {
+        console.log("Loaded windowStores from storage", windowId);
+        windowStores[windowId] = result.windowStores[windowId];
+        resolve();
+      }
+    });
+  });
+}
+
 function saveStores() {
   chrome.storage.local.set({ windowStores }, () => {
     console.log("Saved windowStores to storage", windowStores);
@@ -79,50 +92,56 @@ function saveStores() {
 }
 
 chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
-  if (typeof msg.windowId === "number") {
-    if (msg.type === "initStorage") {
-      const { windowId } = msg;
+  (async () => {
+    if (typeof msg.windowId === "number") {
+      if (msg.type === "initStorage") {
+        const { windowId } = msg;
 
-      if (!windowStores[windowId]) {
-        windowStores[windowId] = {
-          createdAt: Date.now(),
-          data: {},
-        };
-        saveStores();
-        console.log("store created", windowId);
-      }
+        await loadWindowStores(windowId);
 
-      sendResponse({ status: "ok" });
-    }
+        if (!windowStores[windowId]) {
+          windowStores[windowId] = {
+            createdAt: Date.now(),
+            data: {},
+          };
+          saveStores();
+          console.log("store created", windowId);
+        }
 
-    if (msg.type === "getStorage") {
-      const { windowId } = msg;
-
-      windowStores[windowId].data;
-      sendResponse(windowStores[windowId].data || null);
-    }
-
-    if (msg.type === "setStorage") {
-      const { windowId, data, name } = msg;
-
-      if (windowStores[windowId]) {
-        windowStores[windowId].data[name] = data;
-        saveStores();
         sendResponse({ status: "ok" });
-      } else {
-        sendResponse({ status: "store_not_found" });
       }
-    }
 
-    if (msg.type === "removeStorage") {
-      const { windowId } = msg;
-      if (windowStores[windowId]) {
-        windowStores[windowId] = { createdAt: Date.now(), data: {} };
-        saveStores();
-        sendResponse({ status: "ok" });
-      } else {
-        sendResponse({ status: "store_not_found" });
+      if (msg.type === "getStorage") {
+        const { windowId } = msg;
+
+        windowStores[windowId].data;
+        sendResponse(windowStores[windowId].data || null);
+      }
+
+      if (msg.type === "setStorage") {
+        const { windowId, data, name } = msg;
+
+        if (windowStores[windowId]) {
+          windowStores[windowId].data[name] = data;
+          saveStores();
+          sendResponse({ status: "ok" });
+        } else {
+          sendResponse({ status: "store_not_found" });
+        }
+      }
+
+      if (msg.type === "removeStorage") {
+        const { windowId } = msg;
+        if (windowStores[windowId]) {
+          windowStores[windowId] = { createdAt: Date.now(), data: {} };
+          saveStores();
+          sendResponse({ status: "ok" });
+        } else {
+          sendResponse({ status: "store_not_found" });
+        }
       }
     }
-  }
+  })();
+
+  return true;
 });
