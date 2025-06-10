@@ -1,0 +1,72 @@
+@import "tailwindcss";
+@import './styles/others.css';
+
+:root {
+  --background: #fff;
+  --foreground: #000;
+  --foreground-rgb: 0, 0, 0;
+  --primary: #8c88fa;
+  --primary-darker: #8f8cbf;
+  --gray: #c9c9c9;
+  --font-size: 16px;
+  --font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --font-weight: 400;
+  --color: rgba(0, 0, 0, 0.87);
+  --placeholder: #6d6d6d;
+  --error: #c03d3d;
+
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  font-weight: var(--font-weight);
+  line-height: 1.5;
+
+  color-scheme: light dark;
+  color: var(--color);
+  background-color: var(--background);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  @apply font-medium text-[#646cff] no-underline hover:text-[#535bf2];
+}
+
+body {
+  @apply w-[290px] h-[380px] min-h-screen bg-[var(--gray)];
+}
+
+h1 {
+  @apply text-[3.2em] leading-[1.1];
+}
+
+button {
+  @apply rounded-lg border-2 border-transparent px-5 py-2 text-base font-medium bg-[var(--primary)] cursor-pointer transition duration-200;
+}
+button:hover {
+  @apply lg:brightness-90;
+}
+button:active {
+  @apply brightness-75;
+}
+
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #131313;
+    --foreground: #fff;
+    --foreground-rgb: 255, 255, 255;
+    --color: rgba(255, 255, 255, 0.87);
+  --gray: #2f2f2f;
+
+    --primary: #646cff;
+    --primary-darker: #565cdc;
+    --placeholder: #aaaaaa;
+    --error: #a01212;
+  }
+  a:hover {
+    @apply text-[#747bff];
+  }
+}
