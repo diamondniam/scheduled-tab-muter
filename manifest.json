@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Scheduled Tab Muter",
+  "version": "1.5",
+  "description": "Mute tabs on a schedule.",
+  "permissions": ["tabs", "storage", "alarms"],
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "Schedule Tab Mute"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "host_permissions": ["<all_urls>"]
+}
