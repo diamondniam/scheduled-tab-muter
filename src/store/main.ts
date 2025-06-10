@@ -10,12 +10,13 @@ type MainState = {
     view: TimeView;
     currentClock: "from" | "to";
   };
-  browserStorage: Record<string, any>;
+  windowId: number;
 };
 
 type SetActionPayload =
   | { name: "from"; data: string | null }
   | { name: "to"; data: string | null }
+  | { name: "windowId"; data: number }
   | { name: "step"; data: number }
   | { name: "domains"; data: string[] }
   | { name: "clock"; data: { view: TimeView; currentClock: "from" | "to" } };
@@ -32,7 +33,7 @@ const initialState: MainState = {
     view: "hours",
     currentClock: "from",
   },
-  browserStorage: {},
+  windowId: 0,
 };
 
 const mainSlice = createSlice({
@@ -54,6 +55,8 @@ const mainSlice = createSlice({
         case "clock":
           state.clock = action.payload.data;
           break;
+        case "windowId":
+          state.windowId = action.payload.data;
       }
     },
     push: (state, action: PayloadAction<PushActionPayload>) => {
@@ -70,14 +73,8 @@ const mainSlice = createSlice({
           break;
       }
     },
-    setBrowserStorage: (
-      state,
-      action: PayloadAction<{ name: string; data: any }>
-    ) => {
-      state.browserStorage[action.payload.name] = action.payload.data;
-    },
   },
 });
 
-export const { set, push, splice, setBrowserStorage } = mainSlice.actions;
+export const { set, push, splice } = mainSlice.actions;
 export default mainSlice.reducer;

@@ -1,18 +1,9 @@
-import "@/styles/input.css";
+import type { InputProps } from "@/components/types";
 import { useClickOutside } from "@/utils";
 import { useEffect, useState } from "react";
+import "@/styles/input.css";
 
-type Props = {
-  className?: Record<"container" | "input" | "placeholder", string>;
-  placeholder: string;
-  onBeforeInput?: (e: React.InputEvent<HTMLInputElement>) => void;
-  icon?: React.ReactNode;
-  value?: string;
-  onChange?: (val: string) => void;
-  isError?: boolean;
-};
-
-export default function Input(props: Props) {
+export default function Input(props: InputProps) {
   const [isFocused, setIsFocused] = useState(false);
   const [value, setValue] = useState("");
   const input = useClickOutside<HTMLInputElement>(() => {

@@ -8,14 +8,18 @@ import { set } from "@/store/main";
 import { useEffect, useState } from "react";
 import {
   conditionallyInstantMute,
+  getCurrentWindowId,
   getStorage,
+  initStorage,
   resetStorage,
-  scheduleAlarm,
-  sendInitStorage,
+  scheduleAlarms,
   setStorage,
 } from "@/utils";
 
 export default function App() {
+  const dispatch = useDispatch();
+
+  const windowId = useSelector((state: RootState) => state.main.windowId);
   const step = useSelector((state: RootState) => state.main.step);
   const domains = useSelector((state: RootState) => state.main.domains);
   const from = useSelector((state: RootState) => state.main.from);
@@ -24,27 +28,27 @@ export default function App() {
   const [animateTimeNotSelected, setAnimateTimeNotSelected] = useState(false);
   const [animateNoDomains, setAnimateNoDomains] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
-  const browserStorage = useSelector(
-    (state: RootState) => state.main.browserStorage
-  );
 
   let animateTimeNotSelectedTimeout: NodeJS.Timeout | null = null;
   let animateNoDomainsTimeout: NodeJS.Timeout | null = null;
 
-  const dispatch = useDispatch();
-
   useEffect(() => {
     const handleStorageInit = async () => {
-      const storage = await getStorage();
+      const windowId = await getCurrentWindowId();
+      dispatch(set({ name: "windowId", data: windowId }));
+      console.log("windowId", windowId);
+      await initStorage(windowId);
+      const storage = await getStorage(windowId);
 
       if (storage) {
         const { from, to, domains } = storage;
-        dispatch(set({ name: "from", data: from }));
-        dispatch(set({ name: "to", data: to }));
-        dispatch(set({ name: "domains", data: domains }));
-
-        if (domains.length > 0) {
-          setIsRunning(true);
+        if (from) dispatch(set({ name: "from", data: from }));
+        if (to) dispatch(set({ name: "to", data: to }));
+        if (domains) {
+          dispatch(set({ name: "domains", data: domains }));
+          if (domains && domains.length > 0) {
+            setIsRunning(true);
+          }
         }
       }
     };
@@ -77,7 +81,7 @@ export default function App() {
     },
   };
 
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
     setAnimateNoDomains(false);
 
     if (step < 2 && isTimeSelected) {
@@ -92,18 +96,16 @@ export default function App() {
       }, 1 * 1000);
     } else if (step === 2) {
       if (domains.length > 0) {
-        setStorage({
-          data: { domains, from, to },
-          storage: browserStorage,
-        });
+        await Promise.all([
+          setStorage(windowId, "domains", domains),
+          setStorage(windowId, "from", from),
+          setStorage(windowId, "to", to),
+        ]);
         setIsRunning(true);
         if (from && to) {
-          scheduleAlarm("muteAlarm", from);
-          scheduleAlarm("unmuteAlarm", to);
-          conditionallyInstantMute(from, to);
+          scheduleAlarms(windowId, from, to);
+          conditionallyInstantMute(windowId, from, to);
         }
-        sendInitStorage({ domains, from, to });
-        alert("Schedule set!");
       } else {
         setAnimateNoDomains(true);
 
@@ -122,7 +124,7 @@ export default function App() {
   };
 
   const reset = () => {
-    resetStorage();
+    resetStorage(windowId);
     setIsRunning(false);
     dispatch(set({ name: "step", data: 1 }));
     dispatch(set({ name: "domains", data: [] }));

@@ -5,12 +5,9 @@ import { validateUrl, validateUrlChar } from "@/utils";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AnimatePresence, motion } from "framer-motion";
+import type { AddDomainProps } from "@/components/types";
 
-type Props = {
-  className?: string;
-};
-
-export default function AddDomain(props: Props) {
+export default function AddDomain(props: AddDomainProps) {
   const [inputValue, setInputValue] = useState("");
   const maxDomains = 7;
 

@@ -1,3 +1,4 @@
+import type { TimeDisplayProps } from "@/components/types";
 import type { RootState } from "@/store";
 import { set } from "@/store/main";
 import type { TimeView } from "@mui/x-date-pickers/models";
@@ -5,11 +6,7 @@ import dayjs from "dayjs";
 import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-type Props = {
-  className?: string;
-};
-
-export default function TimeDisplay(props: Props) {
+export default function TimeDisplay(props: TimeDisplayProps) {
   const clock = useSelector((state: RootState) => state.main.clock);
   const view = clock.view;
   const currentClock = clock.currentClock;
